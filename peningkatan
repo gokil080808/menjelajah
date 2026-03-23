@@ -1,0 +1,56 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+
+-- Folder path utama
+local eventFolder = ReplicatedStorage:WaitForChild("\228\186\139\228\187\182"):WaitForChild("\229\133\172\231\148\168")
+
+-- ---------------------------------------------------------
+-- LOOP 1: Upgrade Utama (80x)
+-- ---------------------------------------------------------
+print("Memulai Loop 1 (80x)...")
+for i = 1, 80 do
+    eventFolder:WaitForChild("\231\130\188\228\184\185"):WaitForChild("\229\141\135\231\186\167"):FireServer()
+    task.wait(0.1)
+end
+
+-- ---------------------------------------------------------
+-- LOOP 2: Upgrade Args Berurutan (1 sampai 70)
+-- ---------------------------------------------------------
+print("Memulai Loop 2 (Args 1-70)...")
+for i = 1, 70 do
+    local args = { i }
+    eventFolder:WaitForChild("\229\134\156\231\148\176"):WaitForChild("\229\141\135\231\186\167"):FireServer(unpack(args))
+    task.wait(0.1)
+end
+
+-- ---------------------------------------------------------
+-- LOOP 3: Upgrade Utama Lagi (Sekarang 20x)
+-- ---------------------------------------------------------
+print("Memulai Loop 3 (20x)...")
+for i = 1, 20 do
+    eventFolder:WaitForChild("\231\130\188\228\184\185"):WaitForChild("\229\141\135\231\186\167"):FireServer()
+    task.wait(0.1)
+end
+
+-- ---------------------------------------------------------
+-- LOOP 4: Rotasi Upgrade (Args 1-5 diulang bergantian 40x)
+-- ---------------------------------------------------------
+print("Memulai rotasi upgrade 40x...")
+for putaran = 1, 40 do
+    for argValue = 1, 5 do
+        local args = { argValue }
+        eventFolder:WaitForChild("\229\134\156\231\148\176"):WaitForChild("\229\141\135\231\186\167"):FireServer(unpack(args))
+        task.wait(0.05) 
+    end
+end
+
+-- ---------------------------------------------------------
+-- NOTIFIKASI SELESAI
+-- ---------------------------------------------------------
+StarterGui:SetCore("SendNotification", {
+    Title = "Semua Loop Selesai!";
+    Text = "Tahap 1, 2, 3, dan 4 telah berhasil dijalankan.";
+    Duration = 5;
+})
+
+print("Skrip telah selesai sepenuhnya.")
