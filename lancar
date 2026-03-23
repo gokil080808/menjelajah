@@ -1,0 +1,162 @@
+-- =====================================================
+-- EXTREME FPS BOOSTER (BLACK SKY) + DRAGGABLE UI
+-- =====================================================
+
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local UIS = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+task.wait(2)
+
+local enabled = false
+
+-- =====================================================
+-- SAVE ORIGINAL SETTINGS
+-- =====================================================
+local original = {
+    Brightness = Lighting.Brightness,
+    GlobalShadows = Lighting.GlobalShadows,
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+    ClockTime = Lighting.ClockTime,
+    FOV = Workspace.CurrentCamera.FieldOfView
+}
+
+-- =====================================================
+-- FPS MODE FUNCTIONS
+-- =====================================================
+local function enableFPS()
+    Lighting.GlobalShadows = false
+    Lighting.Brightness = 0
+    Lighting.FogEnd = 9e9
+    Lighting.FogStart = 0
+    Lighting.Ambient = Color3.new(0,0,0)
+    Lighting.OutdoorAmbient = Color3.new(0,0,0)
+    Lighting.ClockTime = 0
+
+    for _, v in pairs(Lighting:GetChildren()) do
+        if v:IsA("PostEffect") or v:IsA("Atmosphere") or v:IsA("Sky") then
+            v:Destroy()
+        end
+    end
+
+    local sky = Instance.new("Sky")
+    sky.Name = "FPS_SKY"
+    for _, f in ipairs({"Bk","Dn","Ft","Lf","Rt","Up"}) do
+        sky["Skybox"..f] = "rbxassetid://0"
+    end
+    sky.Parent = Lighting
+
+    for _, obj in pairs(Workspace:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            obj.Material = Enum.Material.Plastic
+            obj.CastShadow = false
+            obj.Reflectance = 0
+        elseif obj:IsA("Texture") or obj:IsA("Decal") then
+            obj:Destroy()
+        elseif obj:IsA("ParticleEmitter")
+            or obj:IsA("Trail")
+            or obj:IsA("Beam")
+            or obj:IsA("Fire")
+            or obj:IsA("Smoke")
+            or obj:IsA("Sparkles") then
+            obj.Enabled = false
+        end
+    end
+
+    Workspace.CurrentCamera.FieldOfView = 70
+end
+
+local function disableFPS()
+    Lighting.Brightness = original.Brightness
+    Lighting.GlobalShadows = original.GlobalShadows
+    Lighting.Ambient = original.Ambient
+    Lighting.OutdoorAmbient = original.OutdoorAmbient
+    Lighting.ClockTime = original.ClockTime
+
+    local sky = Lighting:FindFirstChild("FPS_SKY")
+    if sky then sky:Destroy() end
+
+    Workspace.CurrentCamera.FieldOfView = original.FOV
+end
+
+-- =====================================================
+-- UI SETUP
+-- =====================================================
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.fromScale(0.12, 0.07)
+frame.Position = UDim2.fromScale(0.8, 0.1)
+frame.BackgroundColor3 = Color3.fromRGB(15,15,15)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Selectable = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+local button = Instance.new("TextButton", frame)
+button.Size = UDim2.fromScale(0.92, 0.75)
+button.Position = UDim2.fromScale(0.04, 0.12)
+button.Text = "FPS : OFF"
+button.TextScaled = true
+button.BackgroundColor3 = Color3.fromRGB(120,60,60)
+button.TextColor3 = Color3.new(1,1,1)
+button.AutoButtonColor = true
+Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+
+-- =====================================================
+-- TOGGLE LOGIC
+-- =====================================================
+button.MouseButton1Click:Connect(function()
+    enabled = not enabled
+    if enabled then
+        button.Text = "FPS : ON"
+        button.BackgroundColor3 = Color3.fromRGB(60,120,60)
+        enableFPS()
+    else
+        button.Text = "FPS : OFF"
+        button.BackgroundColor3 = Color3.fromRGB(120,60,60)
+        disableFPS()
+    end
+end)
+
+-- =====================================================
+-- DRAGGABLE LOGIC
+-- =====================================================
+local dragging = false
+local dragStart, startPos
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+
+frame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch) then
+
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+warn("FPS Booster Draggable UI Loaded")
