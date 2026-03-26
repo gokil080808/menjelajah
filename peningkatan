@@ -2,55 +2,94 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 
 -- Folder path utama
-local eventFolder = ReplicatedStorage:WaitForChild("\228\186\139\228\187\182"):WaitForChild("\229\133\172\231\148\168")
+local eventFolder = ReplicatedStorage
+    :WaitForChild("\228\186\139\228\187\182")
+    :WaitForChild("\229\133\172\231\148\168")
+
+-- Remote Event
+local remoteUtama = eventFolder
+    :WaitForChild("\231\130\188\228\184\185")
+    :WaitForChild("\229\141\135\231\186\167")
+
+local remoteRotasi = eventFolder
+    :WaitForChild("\229\134\156\231\148\176")
+    :WaitForChild("\229\141\135\231\186\167")
 
 -- ---------------------------------------------------------
 -- LOOP 1: Upgrade Utama (80x)
 -- ---------------------------------------------------------
-print("Memulai Loop 1 (80x)...")
+print("--- [START] Loop 1 (80x) ---")
 for i = 1, 80 do
-    eventFolder:WaitForChild("\231\130\188\228\184\185"):WaitForChild("\229\141\135\231\186\167"):FireServer()
+    remoteUtama:FireServer()
     task.wait(0.1)
 end
+print("--- [DONE] Loop 1 ---")
 
 -- ---------------------------------------------------------
--- LOOP 2: Upgrade Args Berurutan (1 sampai 70)
+-- LOOP 2: Upgrade Rotasi
+-- argValue 1–5 MASING-MASING 70x
+-- TOTAL = 350 klik
 -- ---------------------------------------------------------
-print("Memulai Loop 2 (Args 1-70)...")
-for i = 1, 70 do
-    local args = { i }
-    eventFolder:WaitForChild("\229\134\156\231\148\176"):WaitForChild("\229\141\135\231\186\167"):FireServer(unpack(args))
-    task.wait(0.1)
+print("--- [START] Loop 2 (Rotasi 350x) ---")
+
+local totalKlik = 0
+
+for argValue = 1, 5 do
+    print(">> Mulai argValue:", argValue)
+
+    for i = 1, 70 do
+        remoteRotasi:FireServer(argValue)
+        totalKlik += 1
+
+        if totalKlik % 25 == 0 then
+            print("Progress Loop 2:", totalKlik, "/350")
+        end
+
+        task.wait(0.1)
+    end
+
+    print("<< Selesai argValue:", argValue)
+    task.wait(0.3) -- buffer antar arg
 end
 
+print("--- [DONE] Loop 2 (TOTAL:", totalKlik, ") ---")
+
+-- buffer global sebelum lanjut
+task.wait(0.7)
+
 -- ---------------------------------------------------------
--- LOOP 3: Upgrade Utama Lagi (Sekarang 20x)
+-- LOOP 3: Upgrade Utama Lagi (20x)
 -- ---------------------------------------------------------
-print("Memulai Loop 3 (20x)...")
+print("--- [START] Loop 3 (20x) ---")
 for i = 1, 20 do
-    eventFolder:WaitForChild("\231\130\188\228\184\185"):WaitForChild("\229\141\135\231\186\167"):FireServer()
+    remoteUtama:FireServer()
     task.wait(0.1)
 end
+print("--- [DONE] Loop 3 ---")
 
 -- ---------------------------------------------------------
--- LOOP 4: Rotasi Upgrade (Args 1-5 diulang bergantian 40x)
+-- LOOP 4: Rotasi Upgrade (40 Putaran)
 -- ---------------------------------------------------------
-print("Memulai rotasi upgrade 40x...")
+print("--- [START] Loop 4 (40 Putaran) ---")
 for putaran = 1, 40 do
     for argValue = 1, 5 do
-        local args = { argValue }
-        eventFolder:WaitForChild("\229\134\156\231\148\176"):WaitForChild("\229\141\135\231\186\167"):FireServer(unpack(args))
-        task.wait(0.05) 
+        remoteRotasi:FireServer(argValue)
+        task.wait(0.05)
+    end
+
+    if putaran % 10 == 0 then
+        print("Loop 4 Progress:", putaran, "/40 Putaran")
     end
 end
+print("--- [DONE] Loop 4 ---")
 
 -- ---------------------------------------------------------
 -- NOTIFIKASI SELESAI
 -- ---------------------------------------------------------
 StarterGui:SetCore("SendNotification", {
-    Title = "Semua Loop Selesai!";
-    Text = "Tahap 1, 2, 3, dan 4 telah berhasil dijalankan.";
+    Title = "Mii Script Selesai!";
+    Text = "Loop Rotasi 350x & semua tahap berhasil dijalankan.";
     Duration = 5;
 })
 
-print("Skrip telah selesai sepenuhnya.")
+print(">>> SEMUA PROSES SELESAI TANPA LOMPAT <<<")
